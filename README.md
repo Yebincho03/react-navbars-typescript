@@ -1,46 +1,134 @@
-# Getting Started with Create React App
+# react-wavy-transitions
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Show wavy transitions between route changes, in your React 18 apps.
 
-## Available Scripts
+Click [here for a demo](https://waves.frontendjoe.com/).
 
-In the project directory, you can run:
+Or [check out the npm package here](https://www.npmjs.com/package/react-wavy-transitions).
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Just a few quick steps to get started:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+#### 1. Create a React app (optional)
 
-### `npm test`
+If you are adding the transitions to an existing app, you can skip this step.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```sh
+npx create-react-app my-wavy-app
+```
 
-### `npm run build`
+#### 2. Install dependencies
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Our project depends upon React's router library
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```sh
+npm i react-wavy-transitions react-router-dom
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### 3. Add components
 
-### `npm run eject`
+The package relies on two components being present.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+##### WavyContainer
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+This is what houses our wave transition between route changes and does not require any props.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+##### WavyLink
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+This button can be declared anywhere inside your Router component.
 
-## Learn More
+It takes the following props:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+| Prop      | Description                                                              | Example | type               | required | default |
+| --------- | ------------------------------------------------------------------------ | ------- | ------------------ | -------- | ------- |
+| children  | The content inside the link                                              | About   | String / Component | true     |         |
+| to        | The route that the link will take you to                                 | /about  | String             | true     |         |
+| color     | The background color of the wave shapes. Must be a hexcode or rgba value | #8f44fd | String             | false    | #8f44fd |
+| direction | The direction that the wave shapes will move (options are up/down)       | up      | String             | false    | down    |
+| duration  | The duration in milliseconds of the total wave transition                | 1200    | Number             | false    | 1500    |
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Be careful with the duration (too fast/slow can ruin the effect) - my recommended duration is between 1000ms and 1600ms.
+
+##### Example App.tsx
+
+Copy this whole code snippet into your App.tsx for a basic example:
+
+```typescript
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+
+import { WavyContainer, WavyLink } from "react-wavy-transitions";
+
+const Home = () => <div>Home</div>;
+const About = () => <div>About</div>;
+const Contact = () => <div>Contact</div>;
+
+function App() {
+  return (
+    <BrowserRouter>
+      <WavyContainer />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <WavyLink to="/" color="#ff44fd">
+                Home
+              </WavyLink>
+              <WavyLink direction="up" to="/about" color="#8f44fd">
+                About
+              </WavyLink>
+              <WavyLink duration={1000} to="/contact" color="#2f44fd">
+                Contact
+              </WavyLink>
+              <Outlet />
+            </>
+          }
+        >
+          <Route index element={<Home />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="*" element={<>No Match</>} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+```
+
+### 4. Styling
+
+To style the WavyLink component you can target it via css (just be more specific than me 😄):
+
+```css
+body .react-wavy-transitions__wavy-link {
+  color: #af44fd;
+  ...;
+}
+```
+
+### 5. DRY (Don't Repeat Yourself)
+
+To avoid repeating certain WavyLink props, I recommend creating your own generic link component that sets the props here by default.
+
+```typescript
+import { FC, ReactNode } from "react";
+import { WavyLink } from "react-wavy-transitions";
+
+type Props = {
+  to: string;
+  children: ReactNode;
+};
+
+export const MyWavyLink: FC<Props> = ({ to, children }) => (
+  <WavyLink duration={1000} direction="up" color="#af44fd" to={to}>
+    {children}
+  </WavyLink>
+);
+```
+
+### 6. Have fun with it!
+
+Please hit me up on [My Instagram page](https://instagram.com/frontendjoe) for any support or suggestions 🙂
